@@ -32,6 +32,7 @@ class UniversalPDFToProject:
         current_file = None
         current_content = []
         reading_file_content = False
+        in_file_section = False
         
         for line in lines:
             line = line.strip()
@@ -50,17 +51,21 @@ class UniversalPDFToProject:
                 current_file = file_path
                 current_content = []
                 reading_file_content = True
+                in_file_section = True
                 continue
             
-            # Se stiamo leggendo il contenuto di un file e non è una linea di metadati
-            if (reading_file_content and current_file and 
-                line and 
-                not line.startswith('DOCUMENTAZIONE') and
-                not line.startswith('Cartelle') and
-                not line.startswith('File') and
-                not line.startswith('Estensioni') and
-                not line.startswith('Progetto:') and
-                not line.startswith('Cartella:')):
+            # Se stiamo leggendo il contenuto di un file
+            if reading_file_content and current_file and line:
+                # Controlla se è una linea di metadati (fine sezione file)
+                if (line.startswith('DOCUMENTAZIONE') or 
+                    line.startswith('Cartelle') or 
+                    line.startswith('File') or 
+                    line.startswith('Estensioni') or
+                    line.startswith('Progetto:') or 
+                    line.startswith('Cartella:')):
+                    reading_file_content = False
+                    in_file_section = False
+                    continue
                 
                 # Gestisce le linee numerate (pattern: "123 | contenuto")
                 line_match = re.match(r'^\s*(\d+)\s*\|\s*(.*)$', line)
@@ -70,8 +75,9 @@ class UniversalPDFToProject:
                 else:
                     # Se non è una linea numerata ma abbiamo contenuto, potrebbe essere continuazione
                     if current_content and not re.match(r'^\s*\d+\s*\|', line):
+                        # Unisci con l'ultima linea per gestire testo a capo
                         current_content[-1] += ' ' + line
-                    elif line:  # Nuova linea di contenuto
+                    elif line and in_file_section:  # Nuova linea di contenuto
                         current_content.append(line)
         
         # Salva l'ultimo file
@@ -82,17 +88,23 @@ class UniversalPDFToProject:
         
         return self.files_data
 
+
+
+
     def clean_file_content(self, content, file_extension):
         """Pulisce il contenuto in base al tipo di file"""
         if not content:
             return content
-            
+        
         # Rimuove i tag [troncato] se presenti
         content = content.replace('... [troncato]', '')
         
         # Gestione specifica per diversi tipi di file
-        if file_extension in ['.py', '.js', '.java', '.c', '.cpp', '.h', '.cs']:
-            # Linguaggi di programmazione - corregge l'indentazione
+        if file_extension == '.py':
+            # Python - usa la gestione indentazione specifica
+            content = self.fix_python_specific_indentation(content)
+        elif file_extension in ['.js', '.java', '.c', '.cpp', '.h', '.cs', '.php']:
+            # Altri linguaggi di programmazione - corregge l'indentazione
             content = self.fix_code_indentation(content)
         elif file_extension in ['.html', '.xml', '.svg']:
             # File markup - corregge la formattazione
@@ -110,54 +122,122 @@ class UniversalPDFToProject:
         return content
 
     def fix_code_indentation(self, content):
-        """Corregge l'indentazione per codice sorgente"""
+        """Corregge l'indentazione per codice sorgente con supporto migliore per Python"""
+        if not content:
+            return content
+            
         lines = content.split('\n')
         fixed_lines = []
         indent_level = 0
         in_multiline_string = False
         string_delimiter = None
+        indent_stack = []  # Stack per gestire indentazioni multiple
         
-        for line in lines:
+        for i, line in enumerate(lines):
             stripped = line.strip()
             if not stripped:
                 fixed_lines.append('')
                 continue
-            
-            # Gestione stringhe multilinea
+
+            # Gestione stringhe multilinea per Python
             if not in_multiline_string:
+                # Controlla se inizia una stringa multilinea
                 if '"""' in stripped or "'''" in stripped:
-                    in_multiline_string = True
-                    string_delimiter = '"""' if '"""' in stripped else "'''"
-            else:
-                if string_delimiter in stripped:
-                    in_multiline_string = False
+                    # Conta le occorrenze per determinare se è l'inizio o la fine
+                    triple_double = stripped.count('"""')
+                    triple_single = stripped.count("'''")
+                    if triple_double % 2 == 1 or triple_single % 2 == 1:
+                        in_multiline_string = True
+                        string_delimiter = '"""' if triple_double else "'''"
             
             if in_multiline_string:
                 fixed_lines.append('    ' * indent_level + stripped)
+                # Controlla se la stringa multilinea termina in questa riga
+                if string_delimiter in stripped:
+                    # Conta le occorrenze per vedere se è bilanciata
+                    count = stripped.count(string_delimiter)
+                    if count % 2 == 1:  # Numero dispari - termina la stringa
+                        in_multiline_string = False
                 continue
+
+            # Calcola l'indentazione basata sulla struttura del codice
+            current_indent = indent_level
             
-            # Calcola indentazione per codice
-            line_indent = 0
+            # Riduci indentazione per certe keyword di fine blocco
+            dedent_keywords = ['return', 'break', 'continue', 'pass']
+            dedent_patterns = ['else:', 'elif:', 'except:', 'finally:', 'elif ']
             
-            # Riduci indentazione per certe keyword
-            if (stripped.startswith(('return', 'break', 'continue', 'pass')) or
-                stripped in ('else:', 'elif:', 'except:', 'finally:')):
-                line_indent = max(0, indent_level - 1)
+            if any(stripped == kw for kw in dedent_keywords) or \
+            any(stripped.startswith(pattern) for pattern in dedent_patterns):
+                current_indent = max(0, indent_level - 1)
+            
+            # Aggiungi la linea con l'indentazione corretta
+            fixed_lines.append('    ' * current_indent + stripped)
+            
+            # Gestione aumento indentazione per Python
+            if stripped.endswith(':') and not stripped.startswith('#'):
+                # Evita di aumentare per import, from, commenti, ecc.
+                non_indenting_keywords = ['import', 'from', 'def ', 'class ', '#', 'print', 'return']
+                if not any(stripped.startswith(kw) for kw in non_indenting_keywords):
+                    # Controlla se è un elif/else che non dovrebbe aumentare l'indent
+                    if not any(stripped.startswith(pattern) for pattern in ['elif ', 'else:']):
+                        indent_level += 1
+                        indent_stack.append(stripped)
+            
+            # Gestione riduzione indentazione per fine blocco
+            elif stripped in ['return', 'break', 'continue', 'pass']:
+                if indent_level > 0:
+                    indent_level -= 1
+                    if indent_stack:
+                        indent_stack.pop()
+            
+            # Gestione speciale per strutture di controllo annidate
+            if stripped.startswith('elif ') or stripped == 'else:':
+                if indent_level > 0 and indent_stack:
+                    # Mantieni lo stesso livello del blocco if precedente
+                    pass
+
+        return '\n'.join(fixed_lines)
+
+    def fix_python_specific_indentation(self, content):
+        """Corregge l'indentazione specifica per Python"""
+        lines = content.split('\n')
+        fixed_lines = []
+        indent_level = 0
+        previous_line = ""
+        
+        for i, line in enumerate(lines):
+            stripped = line.strip()
+            
+            if not stripped:
+                fixed_lines.append('')
+                previous_line = stripped
+                continue
+                
+            # Gestione indentazione basata sul contesto
+            current_indent = indent_level
+            
+            # Logica per determinare l'indentazione
+            if stripped in ['else:', 'elif:', 'except:', 'finally:']:
+                current_indent = max(0, indent_level - 1)
+            elif previous_line.endswith(':') and not previous_line.startswith(('#', 'def ', 'class ')):
+                current_indent = indent_level
             else:
-                line_indent = indent_level
+                current_indent = indent_level
+                
+            # Applica l'indentazione
+            fixed_lines.append('    ' * current_indent + stripped)
             
-            fixed_lines.append('    ' * line_indent + stripped)
-            
-            # Aumenta indentazione dopo certe strutture
-            if (stripped.endswith(':') and 
-                not stripped.startswith('#') and
-                not any(stripped.startswith(kw) for kw in ['import', 'from', 'def ', 'class '])):
+            # Aggiorna il livello di indentazione per la prossima riga
+            if stripped.endswith(':') and not stripped.startswith(('#', 'def ', 'class ')):
                 indent_level += 1
-            # Riduci indentazione per fine blocco implicito
             elif stripped in ['return', 'break', 'continue', 'pass']:
                 indent_level = max(0, indent_level - 1)
-        
+                
+            previous_line = stripped
+            
         return '\n'.join(fixed_lines)
+
 
     def fix_markup_formatting(self, content):
         """Corregge la formattazione per file markup (HTML, XML, etc.)"""
@@ -371,6 +451,68 @@ ESTENSIONI FILE RICOSTRUITE:
         with open(output_path / "RICOSTRUZIONE_REPORT.txt", 'w', encoding='utf-8') as f:
             f.write(report_content)
 
+    def add_file_to_pdf(self, file_path, relative_path):
+        """Aggiunge il contenuto di un file al PDF con migliore gestione indentazione"""
+        try:
+            # Prova diverse codifiche
+            encodings = ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
+            content = None
+            
+            for encoding in encodings:
+                try:
+                    with open(file_path, 'r', encoding=encoding) as file:
+                        content = file.read()
+                    break
+                except UnicodeDecodeError:
+                    continue
+                except Exception:
+                    continue
+            
+            if content is None:
+                content = f"Impossibile leggere il file {file_path} - formato binario o codifica sconosciuta"
+        except Exception as e:
+            content = f"Errore nella lettura del file {file_path}: {str(e)}"
+        
+        # Pulisci il contenuto dai caratteri non compatibili
+        content = self.clean_text(content)
+        relative_path_str = self.clean_text(str(relative_path))
+        
+        # Aggiungi una nuova pagina per ogni file
+        self.pdf.add_page()
+        
+        # Intestazione del file
+        self.pdf.set_font('Arial', 'B', 14)
+        self.pdf.cell(0, 10, f"File: {relative_path_str}", ln=True)
+        self.pdf.ln(5)
+        
+        # Contenuto del file
+        self.pdf.set_font('Courier', '', 8)
+        
+        # Dividi il contenuto in linee e aggiungi al PDF
+        lines = content.split('\n')
+        for i, line in enumerate(lines, 1):
+            # Pulisci ogni linea
+            clean_line = self.clean_text(line)
+            
+            # Gestisci linee troppo lunghe preservando l'indentazione
+            if len(clean_line) > 120:
+                # Mantieni l'indentazione originale
+                indent_match = re.match(r'^(\s*)', clean_line)
+                indent = indent_match.group(1) if indent_match else ''
+                # Tronca il contenuto ma mantieni l'indentazione
+                content_part = clean_line[len(indent):]
+                if len(content_part) > 116:
+                    content_part = content_part[:116] + "..."
+                clean_line = indent + content_part + " [troncato]"
+            
+            # Aggiungi numero di linea
+            line_number = f"{i:4d} | {clean_line}"
+            self.pdf.cell(0, 4, line_number, ln=True)
+
+
+
+
+
 def main():
     import argparse
     
@@ -417,3 +559,5 @@ if __name__ == "__main__":
             print("❌ Devi specificare entrambi i percorsi.")
     else:
         main()
+
+        
