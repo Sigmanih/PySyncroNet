@@ -193,6 +193,20 @@ class AdvancedPDFProjectManager:
             style='Success.TButton',
             width=20
         )
+        # Barra di progresso
+        self.progress_frame = ttk.Frame(main_frame, style='Custom.TFrame')
+        self.progress_frame.pack(fill='x', pady=10)
+
+        self.progress_label = tk.Label(self.progress_frame, text="Progresso:", 
+                                       font=('Segoe UI', 10), bg='#2b2b2b', fg='#ffffff')
+        self.progress_label.pack(anchor='w', padx=10)
+
+        self.progress_bar = ttk.Progressbar(self.progress_frame, mode='determinate')
+        self.progress_bar.pack(fill='x', padx=10, pady=5)
+
+        self.progress_percent = tk.Label(self.progress_frame, text="0%", 
+                                         font=('Segoe UI', 10), bg='#2b2b2b', fg='#ffffff')
+        self.progress_percent.pack(anchor='e', padx=10)
         self.create_pdf_btn.pack(side='right', padx=5)
         
     def setup_recreate_tab(self):
