@@ -3,7 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.pyc
-
+__pycache__/folder_to_pdf.cpython-312.pyc
+__pycache__/pdf_to_folder.cpython-312.pyc
 # Virtual environment
 venv/
 
@@ -22,3 +23,4 @@ test/
 .vscode/
 .idea/
 *.swp
+
