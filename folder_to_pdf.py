@@ -64,10 +64,10 @@ class PythonProjectToPDF:
                     continue
             
             if content is None:
-                content = f"[Impossibile leggere il file {file_path} - formato binario o codifica sconosciuta]"
-                
+                content = f"Impossibile leggere il file {file_path} - formato binario o codifica sconosciuta"
+            
         except Exception as e:
-            content = f"[Errore nella lettura del file {file_path}: {str(e)}]"
+            content = f"Errore nella lettura del file {file_path}: {str(e)}"
         
         # Pulisci il contenuto dai caratteri non compatibili
         content = self.clean_text(content)
@@ -82,7 +82,7 @@ class PythonProjectToPDF:
         self.pdf.ln(5)
         
         # Contenuto del file
-        self.pdf.set_font('Courier', '', 8)  # Dimensione font più piccola per più contenuto
+        self.pdf.set_font('Courier', '', 8)  # Usa Courier per preservare spaziatura fissa
         
         # Dividi il contenuto in linee e aggiungi al PDF PRESERVANDO GLI SPAZI
         lines = content.split('\n')
@@ -90,21 +90,38 @@ class PythonProjectToPDF:
             # Pulisci ogni linea MA PRESERVA GLI SPAZI ORIGINALI
             clean_line = self.clean_text(line)
             
-            # Gestisci linee troppo lunghe PRESERVANDO L'INDENTAZIONE
-            if len(clean_line) > 120:
-                # Mantieni l'indentazione originale
-                indent_match = re.match(r'^(\s*)', clean_line)
-                indent = indent_match.group(1) if indent_match else ''
-                # Tronca il contenuto ma mantieni l'indentazione
-                content_part = clean_line[len(indent):]
-                if len(content_part) > 116:
-                    content_part = content_part[:116] + "..."
-                clean_line = indent + content_part + " [troncato]"
+            # IMPORTANTE: Non troncare le linee per preservare l'indentazione originale
+            # Aggiungi numero di linea - usa spaziatura fissa per allineamento
+            line_number = f"{i:4d} | "
+            # Calcola la larghezza del numero di linea in caratteri
+            line_number_width = len(line_number)
             
-            # Aggiungi numero di linea - IMPORTANTE: non modificare la linea originale
-            line_number = f"{i:4d} | {clean_line}"
-            self.pdf.cell(0, 4, line_number, ln=True)  # Altezza linea più piccola
-    
+            # Scrivi il numero di linea
+            self.pdf.set_font('Courier', '', 8)
+            self.pdf.cell(line_number_width * 1.5, 4, line_number, ln=0)
+            
+            # Scrivi il contenuto preservando spazi e indentazione
+            self.pdf.set_font('Courier', '', 8)
+            self.pdf.cell(0, 4, clean_line, ln=True)
+        
+        self.pdf.ln(5)
+
+    def clean_text(self, text):
+        """Pulisce il testo rimuovendo o sostituendo caratteri non compatibili"""
+        try:
+            # Prova a codificare in latin-1 per verificare la compatibilità
+            text.encode('latin-1')
+            return text
+        except UnicodeEncodeError:
+            # Sostituisci i caratteri non compatibili mantenendo la struttura
+            cleaned_text = ""
+            for char in text:
+                try:
+                    char.encode('latin-1')
+                    cleaned_text += char
+                except UnicodeEncodeError:
+                    cleaned_text += '?'
+            return cleaned_text
     def count_files(self, project_path):
         """Conta il numero totale di file che verranno processati"""
         project_path = Path(project_path)

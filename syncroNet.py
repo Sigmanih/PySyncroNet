@@ -1,4 +1,25 @@
-#File: syncroNet.py
+# File: syncroNet.py
+"""
+🚀 Advanced PDF Project Manager - SyncroNet
+
+DESCRIZIONE:
+Applicazione avanzata per la gestione di progetti tramite PDF. 
+Permette di convertire interi progetti in documenti PDF e di ricostruire 
+progetti completi da PDF, preservando la struttura, l'indentazione 
+e tutti i dettagli del codice originale.
+
+CARATTERISTICHE PRINCIPALI:
+• Conversione progetto → PDF con preservazione totale della formattazione
+• Ricostruzione PDF → progetto con indentazione originale perfetta
+• Gestione avanzata delle esclusioni (file binari, cartelle sistema, etc.)
+• Interfaccia moderna con tema scuro e icone intuitive
+• Operazioni non bloccanti in background con barra di progresso
+• Supporto per tutti i linguaggi di programmazione e file di testo
+
+TECNOLOGIE:
+• Python 3.8+ • Tkinter • PyPDF2/pdfplumber • Threading
+"""
+
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, scrolledtext
 import threading
@@ -16,9 +37,16 @@ from pdf_to_folder import UniversalPDFToProject
 class AdvancedPDFProjectManager:
     def __init__(self, root):
         self.root = root
-        self.root.title("🚀 Advanced PDF Project Manager")
-        self.root.geometry("1000x800")
-        self.root.configure(bg="#2b2b2b")
+        self.root.title("🚀 Advanced PDF Project Manager v3.0")
+        self.root.geometry("1100x850")
+        self.root.configure(bg="#1e1e1e")
+        self.root.minsize(1000, 700)
+        
+        # Icona dell'applicazione (se disponibile)
+        try:
+            self.root.iconbitmap("icon.ico")
+        except:
+            pass
         
         # Variabili principali
         self.project_path = tk.StringVar()
@@ -60,41 +88,77 @@ class AdvancedPDFProjectManager:
         self.setup_ui()
         
     def setup_styles(self):
-        """Configura gli stili per l'interfaccia"""
+        """Configura gli stili per l'interfaccia con tema moderno"""
         style = ttk.Style()
         
-        # Tema per ttk
-        style.configure('Custom.TFrame', background='#2b2b2b')
-        style.configure('Custom.TLabel', background='#2b2b2b', foreground='#ffffff')
-        style.configure('Custom.TButton', background='#0e639c', foreground='#ffffff')
-        style.configure('Success.TButton', background='#388a34', foreground='#ffffff')
-        style.configure('Section.TLabelframe', background='#2b2b2b', foreground='#ce9178')
-        style.configure('Section.TLabelframe.Label', background='#2b2b2b', foreground='#ce9178')
+        # Configurazione tema scuro
+        style.theme_use('clam')
+        
+        # Colori del tema
+        bg_color = '#1e1e1e'
+        fg_color = '#ffffff'
+        accent_color = '#569cd6'
+        success_color = '#388a34'
+        warning_color = '#ce9178'
+        text_color = '#d4d4d4'
+        entry_bg = '#3c3c3c'
+        
+        # Stili personalizzati
+        style.configure('Custom.TFrame', background=bg_color)
+        style.configure('Custom.TLabel', background=bg_color, foreground=fg_color)
+        style.configure('Custom.TButton', 
+                       background='#0e639c', 
+                       foreground='#000000',  # Testo nero per migliore visibilità
+                       focuscolor='none')
+        style.configure('Success.TButton', 
+                       background=success_color, 
+                       foreground='#000000',  # Testo nero
+                       font=('Segoe UI', 9, 'bold'))
+        style.configure('Section.TLabelframe', 
+                       background=bg_color, 
+                       foreground=warning_color,
+                       bordercolor='#444444')
+        style.configure('Section.TLabelframe.Label', 
+                       background=bg_color, 
+                       foreground=warning_color)
+        
+        # Stile per la progress bar
+        style.configure("Custom.Horizontal.TProgressbar",
+                       background=accent_color,
+                       troughcolor=entry_bg,
+                       bordercolor=bg_color,
+                       lightcolor=accent_color,
+                       darkcolor=accent_color)
         
     def setup_ui(self):
-        """Configura l'interfaccia utente principale"""
-        # Header con titolo
-        header_frame = ttk.Frame(self.root, style='Custom.TFrame')
-        header_frame.pack(fill='x', padx=15, pady=10)
+        """Configura l'interfaccia utente principale con design moderno"""
+        # Header con titolo e descrizione
+        header_frame = tk.Frame(self.root, bg='#1e1e1e')
+        header_frame.pack(fill='x', padx=20, pady=15)
         
-        # Usiamo tk.Label invece di ttk.Label per avere più controllo sullo stile
+        # Titolo principale
         title_label = tk.Label(header_frame, 
-                              text="📁 Advanced PDF Project Manager", 
-                              font=('Segoe UI', 20, 'bold'),
-                              bg='#2b2b2b',
+                              text="🚀 Advanced PDF Project Manager", 
+                              font=('Segoe UI', 22, 'bold'),
+                              bg='#1e1e1e',
                               fg='#569cd6')
-        title_label.pack(pady=10)
+        title_label.pack(pady=(0, 5))
         
+        # Sottotitolo con descrizione
         subtitle_label = tk.Label(header_frame,
-                                text="Crea PDF da progetti e ricrea progetti da PDF - Supporta tutti i tipi di file",
-                                font=('Segoe UI', 12),
-                                bg='#2b2b2b',
+                                text="Converti progetti in PDF e ricostruisci progetti da PDF • Preservazione perfetta dell'indentazione",
+                                font=('Segoe UI', 11),
+                                bg='#1e1e1e',
                                 fg='#9cdcfe')
-        subtitle_label.pack(pady=5)
+        subtitle_label.pack(pady=(0, 10))
         
-        # Notebook per le schede
+        # Separatore
+        separator = ttk.Separator(self.root, orient='horizontal')
+        separator.pack(fill='x', padx=20, pady=5)
+        
+        # Notebook per le schede con stile migliorato
         self.notebook = ttk.Notebook(self.root)
-        self.notebook.pack(fill='both', expand=True, padx=15, pady=10)
+        self.notebook.pack(fill='both', expand=True, padx=20, pady=10)
         
         # Creazione delle schede
         self.create_pdf_frame = ttk.Frame(self.notebook, style='Custom.TFrame')
@@ -118,19 +182,23 @@ class AdvancedPDFProjectManager:
     def setup_create_pdf_tab(self):
         """Configura la scheda per creare PDF da progetto"""
         main_frame = ttk.Frame(self.create_pdf_frame, style='Custom.TFrame')
-        main_frame.pack(fill='both', expand=True, padx=10, pady=10)
+        main_frame.pack(fill='both', expand=True, padx=15, pady=15)
         
         # Sezione selezione progetto
         project_section = ttk.LabelFrame(main_frame, text="📂 Selezione Progetto", style='Section.TLabelframe')
-        project_section.pack(fill='x', pady=10)
+        project_section.pack(fill='x', pady=(0, 15))
+        
+        # Grid configuration per responsive layout
+        project_section.columnconfigure(1, weight=1)
         
         project_label = tk.Label(project_section, text="Cartella del progetto:", 
-                               font=('Segoe UI', 10), bg='#2b2b2b', fg='#ffffff')
-        project_label.grid(row=0, column=0, sticky='w', pady=8, padx=10)
+                               font=('Segoe UI', 10, 'bold'), bg='#1e1e1e', fg='#ffffff')
+        project_label.grid(row=0, column=0, sticky='w', pady=12, padx=12)
         
         project_entry = tk.Entry(project_section, textvariable=self.project_path, 
                                width=70, font=('Segoe UI', 9),
-                               bg='#3c3c3c', fg='#ffffff', insertbackground='#ffffff')
+                               bg='#3c3c3c', fg='#ffffff', insertbackground='#ffffff',
+                               relief='flat', highlightthickness=1, highlightcolor='#569cd6')
         project_entry.grid(row=0, column=1, padx=8, pady=8, sticky='ew')
         
         browse_project_btn = ttk.Button(project_section, text="Sfoglia 📁", 
@@ -139,92 +207,110 @@ class AdvancedPDFProjectManager:
         
         # Sezione output PDF
         output_section = ttk.LabelFrame(main_frame, text="💾 Output PDF", style='Section.TLabelframe')
-        output_section.pack(fill='x', pady=10)
+        output_section.pack(fill='x', pady=(0, 15))
+        output_section.columnconfigure(1, weight=1)
         
         output_label = tk.Label(output_section, text="File PDF di output:", 
-                              font=('Segoe UI', 10), bg='#2b2b2b', fg='#ffffff')
-        output_label.grid(row=0, column=0, sticky='w', pady=8, padx=10)
+                              font=('Segoe UI', 10, 'bold'), bg='#1e1e1e', fg='#ffffff')
+        output_label.grid(row=0, column=0, sticky='w', pady=12, padx=12)
         
         output_entry = tk.Entry(output_section, textvariable=self.output_pdf, 
                               width=70, font=('Segoe UI', 9),
-                              bg='#3c3c3c', fg='#ffffff', insertbackground='#ffffff')
+                              bg='#3c3c3c', fg='#ffffff', insertbackground='#ffffff',
+                              relief='flat', highlightthickness=1, highlightcolor='#569cd6')
         output_entry.grid(row=0, column=1, padx=8, pady=8, sticky='ew')
         
         browse_output_btn = ttk.Button(output_section, text="Sfoglia 💾", 
                                      command=self.browse_output_pdf, width=15)
         browse_output_btn.grid(row=0, column=2, padx=8, pady=8)
         
+        # Sezione progresso con design migliorato
+        progress_section = ttk.LabelFrame(main_frame, text="📊 Progresso", style='Section.TLabelframe')
+        progress_section.pack(fill='x', pady=(0, 15))
+        
+        self.progress_label = tk.Label(progress_section, text="Pronto per iniziare...", 
+                                     font=('Segoe UI', 9), bg='#1e1e1e', fg='#d4d4d4')
+        self.progress_label.pack(anchor='w', padx=12, pady=(8, 2))
+        
+        self.progress_bar = ttk.Progressbar(progress_section, 
+                                          style="Custom.Horizontal.TProgressbar",
+                                          mode='determinate')
+        self.progress_bar.pack(fill='x', padx=12, pady=(2, 8))
+        
         # Sezione log
         log_section = ttk.LabelFrame(main_frame, text="📋 Log di Creazione", style='Section.TLabelframe')
-        log_section.pack(fill='both', expand=True, pady=10)
+        log_section.pack(fill='both', expand=True, pady=(0, 15))
         
         self.create_log = scrolledtext.ScrolledText(
             log_section, 
-            height=15, 
+            height=12, 
             width=90, 
             font=('Consolas', 9),
             bg='#1e1e1e',
             fg='#d4d4d4',
             insertbackground='#ffffff',
-            selectbackground='#264f78'
+            selectbackground='#264f78',
+            relief='flat',
+            borderwidth=1
         )
-        self.create_log.pack(fill='both', expand=True, padx=10, pady=10)
+        self.create_log.pack(fill='both', expand=True, padx=12, pady=12)
         
-        # Pulsanti azione
-        button_frame = ttk.Frame(main_frame, style='Custom.TFrame')
-        button_frame.pack(fill='x', pady=15)
+        # Pulsanti azione con layout migliorato
+        button_frame = tk.Frame(main_frame, bg='#1e1e1e')
+        button_frame.pack(fill='x', pady=10)
         
-        clear_log_btn = ttk.Button(button_frame, text="🧹 Pulisci Log", 
+        # Pulsanti sinistra
+        left_button_frame = tk.Frame(button_frame, bg='#1e1e1e')
+        left_button_frame.pack(side='left')
+        
+        clear_log_btn = ttk.Button(left_button_frame, text="🧹 Pulisci Log", 
                                  command=self.clear_create_log)
         clear_log_btn.pack(side='left', padx=5)
         
-        export_log_btn = ttk.Button(button_frame, text="📤 Esporta Log", 
+        export_log_btn = ttk.Button(left_button_frame, text="📤 Esporta Log", 
                                   command=self.export_create_log)
         export_log_btn.pack(side='left', padx=5)
         
-        stats_btn = ttk.Button(button_frame, text="📊 Statistiche Progetto", 
+        stats_btn = ttk.Button(left_button_frame, text="📊 Statistiche Progetto", 
                              command=self.show_project_stats)
         stats_btn.pack(side='left', padx=5)
         
-        self.create_pdf_btn = ttk.Button(
-            button_frame, 
-            text="🚀 Crea PDF", 
+        # Pulsanti destra
+        right_button_frame = tk.Frame(button_frame, bg='#1e1e1e')
+        right_button_frame.pack(side='right')
+        
+        self.create_pdf_btn = tk.Button(
+            right_button_frame, 
+            text="🚀 GENERA PDF", 
             command=self.start_create_pdf, 
-            style='Success.TButton',
-            width=20
+            bg='#388a34',
+            fg='#000000',  # Testo nero per contrasto
+            font=('Segoe UI', 10, 'bold'),
+            width=15,
+            height=2,
+            relief='flat',
+            cursor='hand2'
         )
-        # Barra di progresso
-        self.progress_frame = ttk.Frame(main_frame, style='Custom.TFrame')
-        self.progress_frame.pack(fill='x', pady=10)
-
-        self.progress_label = tk.Label(self.progress_frame, text="Progresso:", 
-                                       font=('Segoe UI', 10), bg='#2b2b2b', fg='#ffffff')
-        self.progress_label.pack(anchor='w', padx=10)
-
-        self.progress_bar = ttk.Progressbar(self.progress_frame, mode='determinate')
-        self.progress_bar.pack(fill='x', padx=10, pady=5)
-
-        self.progress_percent = tk.Label(self.progress_frame, text="0%", 
-                                         font=('Segoe UI', 10), bg='#2b2b2b', fg='#ffffff')
-        self.progress_percent.pack(anchor='e', padx=10)
         self.create_pdf_btn.pack(side='right', padx=5)
         
     def setup_recreate_tab(self):
         """Configura la scheda per ricreare progetto da PDF"""
         main_frame = ttk.Frame(self.recreate_frame, style='Custom.TFrame')
-        main_frame.pack(fill='both', expand=True, padx=10, pady=10)
+        main_frame.pack(fill='both', expand=True, padx=15, pady=15)
         
         # Sezione PDF sorgente
         pdf_section = ttk.LabelFrame(main_frame, text="📄 PDF Sorgente", style='Section.TLabelframe')
-        pdf_section.pack(fill='x', pady=10)
+        pdf_section.pack(fill='x', pady=(0, 15))
+        pdf_section.columnconfigure(1, weight=1)
         
         pdf_label = tk.Label(pdf_section, text="File PDF:", 
-                           font=('Segoe UI', 10), bg='#2b2b2b', fg='#ffffff')
-        pdf_label.grid(row=0, column=0, sticky='w', pady=8, padx=10)
+                           font=('Segoe UI', 10, 'bold'), bg='#1e1e1e', fg='#ffffff')
+        pdf_label.grid(row=0, column=0, sticky='w', pady=12, padx=12)
         
         pdf_entry = tk.Entry(pdf_section, textvariable=self.pdf_to_read, 
                            width=70, font=('Segoe UI', 9),
-                           bg='#3c3c3c', fg='#ffffff', insertbackground='#ffffff')
+                           bg='#3c3c3c', fg='#ffffff', insertbackground='#ffffff',
+                           relief='flat', highlightthickness=1, highlightcolor='#569cd6')
         pdf_entry.grid(row=0, column=1, padx=8, pady=8, sticky='ew')
         
         browse_pdf_btn = ttk.Button(pdf_section, text="Sfoglia 📄", 
@@ -233,15 +319,17 @@ class AdvancedPDFProjectManager:
         
         # Sezione output progetto
         output_section = ttk.LabelFrame(main_frame, text="📁 Output Progetto", style='Section.TLabelframe')
-        output_section.pack(fill='x', pady=10)
+        output_section.pack(fill='x', pady=(0, 15))
+        output_section.columnconfigure(1, weight=1)
         
         output_label = tk.Label(output_section, text="Cartella di output:", 
-                              font=('Segoe UI', 10), bg='#2b2b2b', fg='#ffffff')
-        output_label.grid(row=0, column=0, sticky='w', pady=8, padx=10)
+                              font=('Segoe UI', 10, 'bold'), bg='#1e1e1e', fg='#ffffff')
+        output_label.grid(row=0, column=0, sticky='w', pady=12, padx=12)
         
         output_entry = tk.Entry(output_section, textvariable=self.reconstruction_output, 
                               width=70, font=('Segoe UI', 9),
-                              bg='#3c3c3c', fg='#ffffff', insertbackground='#ffffff')
+                              bg='#3c3c3c', fg='#ffffff', insertbackground='#ffffff',
+                              relief='flat', highlightthickness=1, highlightcolor='#569cd6')
         output_entry.grid(row=0, column=1, padx=8, pady=8, sticky='ew')
         
         browse_output_btn = ttk.Button(output_section, text="Sfoglia 📁", 
@@ -250,99 +338,123 @@ class AdvancedPDFProjectManager:
         
         # Sezione opzioni
         options_section = ttk.LabelFrame(main_frame, text="⚙️ Opzioni Ricostruzione", style='Section.TLabelframe')
-        options_section.pack(fill='x', pady=10)
+        options_section.pack(fill='x', pady=(0, 15))
+        
+        options_frame = tk.Frame(options_section, bg='#1e1e1e')
+        options_frame.pack(fill='x', padx=12, pady=8)
         
         self.auto_open_folder = tk.BooleanVar(value=True)
         self.create_report = tk.BooleanVar(value=True)
         self.overwrite_existing = tk.BooleanVar(value=False)
         
-        auto_open_cb = tk.Checkbutton(options_section, text="Apri cartella output automaticamente", 
+        auto_open_cb = tk.Checkbutton(options_frame, text="Apri cartella output automaticamente", 
                                     variable=self.auto_open_folder, font=('Segoe UI', 9),
-                                    bg='#2b2b2b', fg='#ffffff', selectcolor='#3c3c3c')
-        auto_open_cb.grid(row=0, column=0, sticky='w', pady=4, padx=10)
+                                    bg='#1e1e1e', fg='#d4d4d4', selectcolor='#3c3c3c',
+                                    activebackground='#1e1e1e', activeforeground='#d4d4d4')
+        auto_open_cb.pack(side='left', padx=10)
         
-        report_cb = tk.Checkbutton(options_section, text="Crea report di ricostruzione", 
+        report_cb = tk.Checkbutton(options_frame, text="Crea report di ricostruzione", 
                                  variable=self.create_report, font=('Segoe UI', 9),
-                                 bg='#2b2b2b', fg='#ffffff', selectcolor='#3c3c3c')
-        report_cb.grid(row=0, column=1, sticky='w', pady=4, padx=10)
+                                 bg='#1e1e1e', fg='#d4d4d4', selectcolor='#3c3c3c',
+                                 activebackground='#1e1e1e', activeforeground='#d4d4d4')
+        report_cb.pack(side='left', padx=10)
         
-        overwrite_cb = tk.Checkbutton(options_section, text="Sovrascrivi file esistenti", 
+        overwrite_cb = tk.Checkbutton(options_frame, text="Sovrascrivi file esistenti", 
                                     variable=self.overwrite_existing, font=('Segoe UI', 9),
-                                    bg='#2b2b2b', fg='#ffffff', selectcolor='#3c3c3c')
-        overwrite_cb.grid(row=0, column=2, sticky='w', pady=4, padx=10)
+                                    bg='#1e1e1e', fg='#d4d4d4', selectcolor='#3c3c3c',
+                                    activebackground='#1e1e1e', activeforeground='#d4d4d4')
+        overwrite_cb.pack(side='left', padx=10)
         
         # Sezione log
         log_section = ttk.LabelFrame(main_frame, text="📋 Log di Ricostruzione", style='Section.TLabelframe')
-        log_section.pack(fill='both', expand=True, pady=10)
+        log_section.pack(fill='both', expand=True, pady=(0, 15))
         
         self.recreate_log = scrolledtext.ScrolledText(
             log_section, 
-            height=15, 
+            height=12, 
             width=90, 
             font=('Consolas', 9),
             bg='#1e1e1e',
             fg='#d4d4d4',
             insertbackground='#ffffff',
-            selectbackground='#264f78'
+            selectbackground='#264f78',
+            relief='flat',
+            borderwidth=1
         )
-        self.recreate_log.pack(fill='both', expand=True, padx=10, pady=10)
+        self.recreate_log.pack(fill='both', expand=True, padx=12, pady=12)
         
         # Pulsanti azione
-        button_frame = ttk.Frame(main_frame, style='Custom.TFrame')
-        button_frame.pack(fill='x', pady=15)
+        button_frame = tk.Frame(main_frame, bg='#1e1e1e')
+        button_frame.pack(fill='x', pady=10)
         
-        clear_log_btn = ttk.Button(button_frame, text="🧹 Pulisci Log", 
+        # Pulsanti sinistra
+        left_button_frame = tk.Frame(button_frame, bg='#1e1e1e')
+        left_button_frame.pack(side='left')
+        
+        clear_log_btn = ttk.Button(left_button_frame, text="🧹 Pulisci Log", 
                                  command=self.clear_recreate_log)
         clear_log_btn.pack(side='left', padx=5)
         
-        export_log_btn = ttk.Button(button_frame, text="📤 Esporta Log", 
+        export_log_btn = ttk.Button(left_button_frame, text="📤 Esporta Log", 
                                   command=self.export_recreate_log)
         export_log_btn.pack(side='left', padx=5)
         
-        open_folder_btn = ttk.Button(button_frame, text="📂 Apri Cartella Output", 
+        open_folder_btn = ttk.Button(left_button_frame, text="📂 Apri Cartella Output", 
                                    command=self.open_output_folder)
         open_folder_btn.pack(side='left', padx=5)
         
-        self.recreate_btn = ttk.Button(
-            button_frame, 
-            text="🔄 Ricrea Progetto", 
+        # Pulsanti destra
+        right_button_frame = tk.Frame(button_frame, bg='#1e1e1e')
+        right_button_frame.pack(side='right')
+        
+        self.recreate_btn = tk.Button(
+            right_button_frame, 
+            text="🔄 RICREA PROGETTO", 
             command=self.start_recreate_project, 
-            style='Success.TButton',
-            width=20
+            bg='#388a34',
+            fg='#000000',  # Testo nero per contrasto
+            font=('Segoe UI', 10, 'bold'),
+            width=15,
+            height=2,
+            relief='flat',
+            cursor='hand2'
         )
         self.recreate_btn.pack(side='right', padx=5)
-        
+
+    # [I metodi setup_exclusions_tab, setup_settings_tab e tutti gli altri metodi rimangono uguali...]
+    # Per brevità, mantengo la struttura esistente per questi metodi
+
     def setup_exclusions_tab(self):
         """Configura la scheda per gestire le esclusioni"""
         main_frame = ttk.Frame(self.exclusions_frame, style='Custom.TFrame')
-        main_frame.pack(fill='both', expand=True, padx=10, pady=10)
+        main_frame.pack(fill='both', expand=True, padx=15, pady=15)
         
         # Descrizione
         desc_section = ttk.LabelFrame(main_frame, text="ℹ️ Informazioni Esclusioni", style='Section.TLabelframe')
-        desc_section.pack(fill='x', pady=10)
+        desc_section.pack(fill='x', pady=(0, 15))
         
         desc_text = """
 Queste esclusioni vengono applicate automaticamente quando crei un PDF da un progetto.
 I file e cartelle esclusi non verranno inclusi nel PDF generato.
 
-• Cartelle: Directory intere da escludere (es: venv, node_modules)
-• File: Nomi specifici di file da escludere (es: .env, config.py)  
-• Estensioni: Tipi di file da escludere per estensione (es: .jpg, .exe)
+• 📁 Cartelle: Directory intere da escludere (es: venv, node_modules)
+• 📄 File: Nomi specifici di file da escludere (es: .env, config.py)  
+• 🔧 Estensioni: Tipi di file da escludere per estensione (es: .jpg, .exe)
 
-Separare i valori con virgole.
+💡 Separare i valori con virgole. Usa * per i pattern (es: *.tmp)
         """
         
         desc_label = tk.Label(desc_section, text=desc_text, justify='left', 
-                            font=('Segoe UI', 9), bg='#2b2b2b', fg='#d4d4d4')
-        desc_label.pack(pady=10, padx=10, anchor='w')
+                            font=('Segoe UI', 9), bg='#1e1e1e', fg='#d4d4d4')
+        desc_label.pack(pady=12, padx=12, anchor='w')
         
         # Sezione cartelle escluse
         dirs_section = ttk.LabelFrame(main_frame, text="📁 Cartelle Escluse", style='Section.TLabelframe')
-        dirs_section.pack(fill='x', pady=10)
+        dirs_section.pack(fill='x', pady=(0, 15))
         
         dirs_label = tk.Label(dirs_section, text="Cartelle da escludere:", 
-                            font=('Segoe UI', 10), bg='#2b2b2b', fg='#ffffff')
-        dirs_label.pack(anchor='w', padx=10, pady=5)
+                            font=('Segoe UI', 10, 'bold'), bg='#1e1e1e', fg='#ffffff')
+        dirs_label.pack(anchor='w', padx=12, pady=(8, 5))
         
         self.dirs_text = scrolledtext.ScrolledText(
             dirs_section, 
@@ -350,18 +462,20 @@ Separare i valori con virgole.
             width=90,
             font=('Consolas', 9),
             bg='#1e1e1e',
-            fg='#d4d4d4'
+            fg='#d4d4d4',
+            relief='flat',
+            borderwidth=1
         )
-        self.dirs_text.pack(fill='x', padx=10, pady=5)
+        self.dirs_text.pack(fill='x', padx=12, pady=(0, 8))
         self.dirs_text.insert('1.0', ", ".join(sorted(self.default_excluded_dirs)))
         
         # Sezione file esclusi
         files_section = ttk.LabelFrame(main_frame, text="📄 File Esclusi", style='Section.TLabelframe')
-        files_section.pack(fill='x', pady=10)
+        files_section.pack(fill='x', pady=(0, 15))
         
         files_label = tk.Label(files_section, text="File da escludere:", 
-                             font=('Segoe UI', 10), bg='#2b2b2b', fg='#ffffff')
-        files_label.pack(anchor='w', padx=10, pady=5)
+                             font=('Segoe UI', 10, 'bold'), bg='#1e1e1e', fg='#ffffff')
+        files_label.pack(anchor='w', padx=12, pady=(8, 5))
         
         self.files_text = scrolledtext.ScrolledText(
             files_section, 
@@ -369,18 +483,20 @@ Separare i valori con virgole.
             width=90,
             font=('Consolas', 9),
             bg='#1e1e1e',
-            fg='#d4d4d4'
+            fg='#d4d4d4',
+            relief='flat',
+            borderwidth=1
         )
-        self.files_text.pack(fill='x', padx=10, pady=5)
+        self.files_text.pack(fill='x', padx=12, pady=(0, 8))
         self.files_text.insert('1.0', ", ".join(sorted(self.default_excluded_files)))
         
         # Sezione estensioni escluse
         extensions_section = ttk.LabelFrame(main_frame, text="🔧 Estensioni Escluse", style='Section.TLabelframe')
-        extensions_section.pack(fill='x', pady=10)
+        extensions_section.pack(fill='x', pady=(0, 15))
         
         extensions_label = tk.Label(extensions_section, text="Estensioni da escludere:", 
-                                  font=('Segoe UI', 10), bg='#2b2b2b', fg='#ffffff')
-        extensions_label.pack(anchor='w', padx=10, pady=5)
+                                  font=('Segoe UI', 10, 'bold'), bg='#1e1e1e', fg='#ffffff')
+        extensions_label.pack(anchor='w', padx=12, pady=(8, 5))
         
         self.extensions_text = scrolledtext.ScrolledText(
             extensions_section, 
@@ -388,17 +504,22 @@ Separare i valori con virgole.
             width=90,
             font=('Consolas', 9),
             bg='#1e1e1e',
-            fg='#d4d4d4'
+            fg='#d4d4d4',
+            relief='flat',
+            borderwidth=1
         )
-        self.extensions_text.pack(fill='x', padx=10, pady=5)
+        self.extensions_text.pack(fill='x', padx=12, pady=(0, 8))
         self.extensions_text.insert('1.0', ", ".join(sorted(self.default_excluded_extensions)))
         
         # Pulsanti gestione esclusioni
-        button_frame = ttk.Frame(main_frame, style='Custom.TFrame')
+        button_frame = tk.Frame(main_frame, bg='#1e1e1e')
         button_frame.pack(fill='x', pady=15)
         
-        save_btn = ttk.Button(button_frame, text="💾 Salva Esclusioni", 
-                            command=self.save_exclusions, style='Success.TButton')
+        save_btn = tk.Button(button_frame, text="💾 Salva Esclusioni", 
+                           command=self.save_exclusions, 
+                           bg='#388a34', fg='#000000',
+                           font=('Segoe UI', 9, 'bold'),
+                           relief='flat', width=15)
         save_btn.pack(side='left', padx=5)
         
         reset_btn = ttk.Button(button_frame, text="🔄 Ripristina Default", 
@@ -412,76 +533,100 @@ Separare i valori con virgole.
         import_btn = ttk.Button(button_frame, text="📥 Importa Configurazione", 
                               command=self.import_exclusions)
         import_btn.pack(side='left', padx=5)
-        
+
     def setup_settings_tab(self):
         """Configura la scheda impostazioni e informazioni"""
         main_frame = ttk.Frame(self.settings_frame, style='Custom.TFrame')
-        main_frame.pack(fill='both', expand=True, padx=10, pady=10)
+        main_frame.pack(fill='both', expand=True, padx=15, pady=15)
         
         # Informazioni applicazione
         info_section = ttk.LabelFrame(main_frame, text="ℹ️ Informazioni Applicazione", style='Section.TLabelframe')
-        info_section.pack(fill='x', pady=10)
+        info_section.pack(fill='x', pady=(0, 15))
         
         info_text = """
 🚀 Advanced PDF Project Manager - Versione 3.0
 
-Funzionalità Principali:
+✨ Funzionalità Principali:
 • 📄 Crea PDF da progetti (supporta tutti i tipi di file di testo/codice)
-• 🔄 Ricrea progetti completi da PDF
+• 🔄 Ricrea progetti completi da PDF con indentazione perfetta
 • 🚫 Gestione avanzata delle esclusioni (file binari, immagini, etc.)
-• 🎨 Interfaccia moderna con tema scuro
-• ⚡ Operazioni in background non bloccanti
+• 🎨 Interfaccia moderna con tema scuro e design intuitivo
+• ⚡ Operazioni in background non bloccanti con progresso in tempo reale
 
-Supporta:
+🌐 Supporta:
 • Python, JavaScript, Java, C++, C#, HTML, CSS, JSON, XML, Markdown
 • Tutti i linguaggi di programmazione e file di testo
-• Strutture progetto complesse con sottocartelle
+• Strutture progetto complesse con sottocartelle multiple
 
-Tecnologie:
-• Python 3.8+
-• Tkinter per l'interfaccia
-• PyPDF2 per l'elaborazione PDF
-• Threading per operazioni non bloccanti
+🛠️ Tecnologie:
+• Python 3.8+ • Tkinter • PyPDF2/pdfplumber • Threading
+
+🎯 Caratteristiche Uniche:
+• Preservazione perfetta di indentazione e spaziatura originale
+• Ricostruzione fedele della struttura del progetto
+• Gestione intelligente delle esclusioni
+• Report dettagliati di ricostruzione
         """
         
         info_label = tk.Label(info_section, text=info_text, justify='left', 
-                            font=('Segoe UI', 9), bg='#2b2b2b', fg='#d4d4d4')
-        info_label.pack(pady=10, padx=10, anchor='w')
+                            font=('Segoe UI', 9), bg='#1e1e1e', fg='#d4d4d4')
+        info_label.pack(pady=12, padx=12, anchor='w')
         
         # Statistiche e utilità
         stats_section = ttk.LabelFrame(main_frame, text="📊 Statistiche & Utilità", style='Section.TLabelframe')
-        stats_section.pack(fill='x', pady=10)
+        stats_section.pack(fill='x', pady=(0, 15))
         
         # Pulsanti utilità
-        utils_frame = ttk.Frame(stats_section, style='Custom.TFrame')
-        utils_frame.pack(fill='x', pady=10)
+        utils_frame = tk.Frame(stats_section, bg='#1e1e1e')
+        utils_frame.pack(fill='x', pady=12)
         
-        docs_btn = ttk.Button(utils_frame, text="📖 Documentazione", 
-                            command=self.open_documentation, width=20)
-        docs_btn.pack(side='left', padx=5)
+        docs_btn = tk.Button(utils_frame, text="📖 Documentazione", 
+                           command=self.open_documentation, 
+                           bg='#0e639c', fg='#ffffff',
+                           font=('Segoe UI', 9),
+                           relief='flat', width=18)
+        docs_btn.pack(side='left', padx=8)
         
-        bug_btn = ttk.Button(utils_frame, text="🐛 Segnala Bug", 
-                           command=self.report_bug, width=20)
-        bug_btn.pack(side='left', padx=5)
+        bug_btn = tk.Button(utils_frame, text="🐛 Segnala Bug", 
+                          command=self.report_bug,
+                          bg='#ce9178', fg='#000000',
+                          font=('Segoe UI', 9),
+                          relief='flat', width=18)
+        bug_btn.pack(side='left', padx=8)
         
-        suggest_btn = ttk.Button(utils_frame, text="💡 Suggerimenti", 
-                               command=self.suggest_features, width=20)
-        suggest_btn.pack(side='left', padx=5)
+        suggest_btn = tk.Button(utils_frame, text="💡 Suggerimenti", 
+                              command=self.suggest_features,
+                              bg='#569cd6', fg='#000000',
+                              font=('Segoe UI', 9),
+                              relief='flat', width=18)
+        suggest_btn.pack(side='left', padx=8)
         
-        update_btn = ttk.Button(utils_frame, text="🔄 Controlla Aggiornamenti", 
-                              command=self.check_updates, width=20)
-        update_btn.pack(side='left', padx=5)
+        update_btn = tk.Button(utils_frame, text="🔄 Controlla Aggiornamenti", 
+                             command=self.check_updates,
+                             bg='#388a34', fg='#000000',
+                             font=('Segoe UI', 9),
+                             relief='flat', width=18)
+        update_btn.pack(side='left', padx=8)
         
     def setup_status_bar(self):
-        """Configura la status bar"""
-        status_frame = ttk.Frame(self.root, relief='sunken', padding=2, style='Custom.TFrame')
+        """Configura la status bar con design moderno"""
+        status_frame = tk.Frame(self.root, bg='#2d2d30', height=25)
         status_frame.pack(fill='x', side='bottom')
+        status_frame.pack_propagate(False)
         
         self.status_var = tk.StringVar(value="🟢 Pronto - Seleziona un'operazione per iniziare")
         status_label = tk.Label(status_frame, textvariable=self.status_var, 
-                              font=('Segoe UI', 9), bg='#2b2b2b', fg='#569cd6')
-        status_label.pack(side='left')
+                              font=('Segoe UI', 9), bg='#2d2d30', fg='#569cd6')
+        status_label.pack(side='left', padx=10, pady=3)
         
+        # Aggiungi versione
+        version_label = tk.Label(status_frame, text="v3.0 • SyncroNet", 
+                               font=('Segoe UI', 8), bg='#2d2d30', fg='#858585')
+        version_label.pack(side='right', padx=10, pady=3)
+
+    # [Tutti gli altri metodi rimangono invariati...]
+    # Metodi per la gestione delle azioni (browse, log, export, etc.)
+
     def browse_project(self):
         path = filedialog.askdirectory(title="📁 Seleziona cartella progetto")
         if path:
@@ -514,6 +659,16 @@ Tecnologie:
     def update_status(self, message):
         self.status_var.set(f"📅 {datetime.now().strftime('%H:%M:%S')} - {message}")
         self.root.update_idletasks()
+    
+    def update_progress(self, current, total):
+        """Aggiorna la barra di progresso"""
+        if total > 0:
+            percentage = (current / total) * 100
+            self.progress_bar['value'] = percentage
+            self.progress_label.config(text=f"Elaborazione: {current}/{total} file ({percentage:.1f}%)")
+        else:
+            self.progress_bar['value'] = 0
+            self.progress_label.config(text='Pronto per iniziare...')
     
     def log_create(self, message):
         self.create_log.insert(tk.END, f"{datetime.now().strftime('%H:%M:%S')} - {message}\n")
@@ -663,12 +818,12 @@ Tecnologie:
                     extensions[ext] = extensions.get(ext, 0) + 1
             
             stats_text = f"""
-Statistiche Progetto: {project_path.name}
+📊 Statistiche Progetto: {project_path.name}
 
-File totali: {total_files}
-Dimensione totale: {total_size / (1024*1024):.2f} MB
+📁 File totali: {total_files}
+💾 Dimensione totale: {total_size / (1024*1024):.2f} MB
 
-Estensioni principali:
+🔧 Estensioni principali:
 """
             for ext, count in sorted(extensions.items(), key=lambda x: x[1], reverse=True)[:10]:
                 stats_text += f"  {ext or 'Nessuna'}: {count} file\n"
@@ -708,7 +863,7 @@ Estensioni principali:
             messagebox.showerror("Errore", "Specifica un file PDF di output")
             return
         
-        self.create_pdf_btn.config(state='disabled')
+        self.create_pdf_btn.config(state='disabled', bg='#666666')
         self.update_status("🚀 Avvio creazione PDF...")
         
         thread = threading.Thread(target=self.create_pdf_thread)
@@ -743,12 +898,21 @@ Estensioni principali:
                 custom_exclusions['extensions'] = exts
                 self.log_create(f"🔧 Estensioni escluse: {len(exts)} elementi")
             
-            # Crea il PDF usando la classe dal tuo file
+            # Reset barra di progresso
+            self.root.after(0, self.update_progress, 0, 100)
+            
+            # Crea il PDF
             converter = PythonProjectToPDF()
+            
+            # Definiamo il callback per il progresso
+            def progress_callback(current, total):
+                self.root.after(0, self.update_progress, current, total)
+            
             files_processed = converter.create_pdf(
                 self.project_path.get(),
                 self.output_pdf.get(),
-                custom_exclusions
+                custom_exclusions,
+                progress_callback  # Passa il callback
             )
             
             self.log_create(f"✅ PDF creato con successo! File processati: {files_processed}")
@@ -761,7 +925,7 @@ Estensioni principali:
             self.update_status("❌ Errore nella creazione PDF")
             messagebox.showerror("Errore", f"Errore durante la creazione del PDF:\n{str(e)}")
         finally:
-            self.create_pdf_btn.config(state='normal')
+            self.create_pdf_btn.config(state='normal', bg='#388a34')
     
     def start_recreate_project(self):
         """Avvia la ricostruzione del progetto in un thread separato"""
@@ -777,7 +941,7 @@ Estensioni principali:
             messagebox.showerror("Errore", "Il file PDF specificato non esiste")
             return
         
-        self.recreate_btn.config(state='disabled')
+        self.recreate_btn.config(state='disabled', bg='#666666')
         self.update_status("🔄 Avvio ricostruzione progetto...")
         
         thread = threading.Thread(target=self.recreate_project_thread)
@@ -817,7 +981,7 @@ Estensioni principali:
             self.update_status("❌ Errore nella ricostruzione")
             messagebox.showerror("Errore", f"Errore durante la ricostruzione:\n{str(e)}")
         finally:
-            self.recreate_btn.config(state='normal')
+            self.recreate_btn.config(state='normal', bg='#388a34')
 
 def main():
     root = tk.Tk()
