@@ -92,7 +92,7 @@ class PythonProjectToPDF:
             
             # IMPORTANTE: Non troncare le linee per preservare l'indentazione originale
             # Aggiungi numero di linea - usa spaziatura fissa per allineamento
-            line_number = f"{i:4d} | "
+            line_number = f"{i:4d}|"
             # Calcola la larghezza del numero di linea in caratteri
             line_number_width = len(line_number)
             
