@@ -348,18 +348,6 @@ TECNICA DI PRESERVAZIONE SPAZI:
 ✅ FORMATTAZIONE INTATTA: La formattazione del codice rimane identica
 ✅ SUPPORTO UNIVERSALE: Funziona con tutti i linguaggi di programmazione
 
-METODO:
-1. Estrazione precisa del contenuto dopo il pipe "|"
-2. Conservazione di TUTTI gli spazi iniziali e interni
-3. Nessuna ricostruzione o modifica dell'indentazione
-4. Scrittura fedele del contenuto originale
-
-ESEMPIO GARANTITO:
-class PythonProjectToPDF:          # Spazi originali preservati
-    def __init__(self):            # Indentazione originale mantenuta
-        self.pdf = FPDF()          # Tutti gli spasi intatti
-    def should_exclude(self):      # Continuità blocchi preservata
-        return True                # Formattazione fedele al PDF
 """
 
         with open(output_path / "RICOSTRUZIONE_REPORT.txt", 'w', encoding='utf-8') as f:

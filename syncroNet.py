@@ -76,7 +76,7 @@ class AdvancedPDFProjectManager:
             '.pptx', '.zip', '.rar', '.7z', '.tar', '.gz', '.mp4', '.avi',
             '.mkv', '.mov', '.mp3', '.wav', '.flac', '.ogg', '.db', '.sqlite',
             '.sqlite3', '.mdb', '.accdb', '.pdb', '.idb', '.class', '.jar',
-            '.war', '.ear'
+            '.war', '.ear', '.metadata'
         }
         
         # Variabili per le esclusioni
