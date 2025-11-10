@@ -105,7 +105,7 @@ class UniversalPDFToProject:
                         
                         if pipe_pos >= 0:
                             # Prendi tutto ciò che viene DOPO il pipe, INCLUDENDO TUTTI GLI SPAZI
-                            content_after_pipe = raw_line[pipe_pos + 1:]
+                            content_after_pipe = line_match.group(2)
                             
                             # ANALISI DETTAGLIATA DEGLI SPAZI
                             # Conta gli spazi iniziali nel contenuto dopo il pipe

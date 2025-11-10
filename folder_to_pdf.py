@@ -101,7 +101,7 @@ class PythonProjectToPDF:
                 self.pdf.cell(0, 4, clean_line, ln=True)
             else:
                 # Linea lunga - dividi in più righe
-                line_number = f"{i:4d}|"
+                line_number = f"{i:4d} |"
                 indent_spaces = " " * len(line_number)  # Spazi per l'allineamento
                 
                 # Scrivi la prima parte con il numero di linea
