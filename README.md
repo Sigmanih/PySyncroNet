@@ -52,7 +52,7 @@ Il cuore dell'applicazione, con interfaccia GUI multi-tab e funzionalità di ges
 
 * **Python 3.8+**
 * **Tkinter** per l'interfaccia grafica
-* **FPDF** e **PyPDF2/pdfplumber** per la gestione dei PDF
+* **FPDF** e **PyPDF2** per la gestione dei PDF
 * **Threading**, **pathlib**, **os**, **re** per la logica applicativa
 
 ---
@@ -68,7 +68,7 @@ Il cuore dell'applicazione, con interfaccia GUI multi-tab e funzionalità di ges
 2. Installare le dipendenze:
 
    ```bash
-   pip install fpdf PyPDF2 pdfplumber
+   pip install fpdf PyPDF2 
    ```
 3. Avviare l'applicazione:
 

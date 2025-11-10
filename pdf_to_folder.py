@@ -3,12 +3,8 @@ import re
 import os
 from pathlib import Path
 import datetime
-try:
-    import pdfplumber
-    HAS_PDFPLUMBER = True
-except ImportError:
-    import PyPDF2
-    HAS_PDFPLUMBER = False
+
+import PyPDF2
 
 
 class UniversalPDFToProject:
@@ -19,24 +15,14 @@ class UniversalPDFToProject:
     def extract_pdf_content(self, pdf_path):
         """Estrae il contenuto dal PDF preservando il layout"""
         try:
-            if HAS_PDFPLUMBER:
+            with open(pdf_path, 'rb') as file:
+                pdf_reader = PyPDF2.PdfReader(file)
                 full_text = ""
-                with pdfplumber.open(pdf_path) as pdf:
-                    for page_num, page in enumerate(pdf.pages):
-                        # Usa extract_text con layout preservato
-                        text = page.extract_text(layout=True, x_tolerance=1, y_tolerance=1)
-                        if text:
-                            full_text += text + "\n"
+                for page in pdf_reader.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        full_text += page_text + "\n"
                 return full_text
-            else:
-                with open(pdf_path, 'rb') as file:
-                    pdf_reader = PyPDF2.PdfReader(file)
-                    full_text = ""
-                    for page in pdf_reader.pages:
-                        page_text = page.extract_text()
-                        if page_text:
-                            full_text += page_text + "\n"
-                    return full_text
         except Exception as e:
             print(f"❌ Errore nell'estrazione del PDF: {e}")
             return None
