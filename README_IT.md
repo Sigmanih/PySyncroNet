@@ -126,3 +126,32 @@ Consulta il file `LICENSE` per dettagli.
 **PySyncroNet** – sviluppato da Sigmanih
 Versione: **3.1 (AI-Enhanced Edition)**
 Data: Novembre 2025
+
+
+PySyncroNet/
+├── main.py                    # Punto di ingresso principale
+├── core/                      # Moduli core dell'applicazione
+│   ├── __init__.py
+│   ├── pdf_converter.py       # Conversione progetto -> PDF
+│   ├── project_recreator.py   # Ricostruzione progetto da PDF
+│   ├── file_manager.py        # Gestione file e esclusioni
+│   └── config.py             # Configurazioni e costanti
+├── gui/                       # Componenti dell'interfaccia grafica
+│   ├── __init__.py
+│   ├── main_window.py        # Finestra principale
+│   ├── tabs/                 # Schede dell'interfaccia
+│   │   ├── __init__.py
+│   │   ├── pdf_creator_tab.py
+│   │   ├── project_recreator_tab.py
+│   │   ├── exclusions_tab.py
+│   │   └── settings_tab.py
+│   ├── widgets.py            # Widget personalizzati
+│   └── styles.py             # Stili e temi
+├── utils/                     # Utility e helpers
+│   ├── __init__.py
+│   ├── logger.py             # Sistema di logging
+│   ├── progress.py           # Gestione progresso
+│   ├── validators.py         # Validatori input
+│   └── file_utils.py         # Utility per file system
+└── assets/                   # Risorse (icone, etc.)
+    └── __init__.py
