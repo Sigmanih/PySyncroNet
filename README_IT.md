@@ -33,24 +33,6 @@ Il formato PDF non solo garantisce sicurezza e compatibilità, ma offre anche un
 
 ---
 
-## Architettura del Software
-
-### 1. `folder_to_pdf.py`
-
-Gestisce la **conversione del progetto in PDF** con layout fedele e supporto multi-encoding (UTF-8, Latin-1, ecc.).
-Ogni file viene rappresentato nel PDF con numerazione di riga e indentazione preservata.
-
-### 2. `pdf_to_folder.py`
-
-Gestisce la **ricostruzione del progetto dal PDF** con riconoscimento intelligente delle sezioni di file.
-Supporta sia `PyPDF2` che `pdfplumber` per un parsing accurato e compatibile.
-
-### 3. `syncroNet.py`
-
-Il cuore dell'applicazione, con interfaccia GUI multi-tab e funzionalità di gestione progetto, log e configurazioni di esclusione.
-
----
-
 ## Tecnologie Utilizzate
 
 * **Python 3.8+**
@@ -76,12 +58,12 @@ Il cuore dell'applicazione, con interfaccia GUI multi-tab e funzionalità di ges
 3. Installare le dipendenze:
 
    ```bash
-   pip install fpdf PyPDF2 
+   pip install -r requirements.txt
    ```
 4. Avviare l'applicazione:
 
    ```bash
-   python syncroNet.py
+   python main.py
    ```
 
 ---

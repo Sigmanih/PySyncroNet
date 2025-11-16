@@ -35,21 +35,7 @@ The PDF format not only ensures security and compatibility but also provides a p
 
 ---
 
-## Software Architecture
 
-### 1. `folder_to_pdf.py`
-
-Handles **project-to-PDF conversion** with accurate layout and multi-encoding support (UTF-8, Latin-1, etc.). Each file is represented in the PDF with line numbers and preserved indentation.
-
-### 2. `pdf_to_folder.py`
-
-Handles **project reconstruction from PDF** with intelligent file section recognition. Supports both `PyPDF2` and `pdfplumber` for accurate and compatible parsing.
-
-### 3. `syncroNet.py`
-
-The core of the application, featuring a multi-tab GUI interface, project management tools, logging system, and exclusion settings.
-
----
 
 ## Technologies Used
 
@@ -83,7 +69,7 @@ The core of the application, featuring a multi-tab GUI interface, project manage
 4. Launch the application:
 
    ```bash
-   python syncroNet.py
+   python main.py
    ```
 
 ---
