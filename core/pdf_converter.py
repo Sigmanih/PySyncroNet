@@ -9,6 +9,7 @@ from pathlib import Path
 from fpdf import FPDF
 from core.file_manager import FileManager
 from core.config import SUPPORTED_ENCODINGS, MAX_LINE_WIDTH
+from core.emoji_mapping import EMOJI_MAPPING, REVERSE_EMOJI_MAPPING
 
 class PDFConverter:
     """Gestisce la conversione di progetti in PDF"""
@@ -22,7 +23,7 @@ class PDFConverter:
     
     def _ensure_saved_directory(self):
         """Crea la cartella Saved se non esiste"""
-        saved_dir = Path("Saved")
+        saved_dir = Path("saved")
         saved_dir.mkdir(exist_ok=True)
     
     def _get_saved_pdf_path(self, project_path, custom_output_path=None):
@@ -32,7 +33,7 @@ class PDFConverter:
         
         project_name = Path(project_path).name
         pdf_filename = f"{project_name}_Snapshot.pdf"
-        return Path("Saved") / pdf_filename
+        return Path("saved") / pdf_filename
     
     def _open_pdf(self, pdf_path):
         """Apre il PDF con il visualizzatore predefinito del sistema"""
@@ -101,7 +102,7 @@ class PDFConverter:
                           progress_callback=None, include_excluded=False, open_after_creation=True):
         """Crea un PDF dal progetto"""
         # Applica esclusioni personalizzate
-            # REINIZIALIZZA il PDF ogni volta per evitare accumulo di pagine
+        # REINIZIALIZZA il PDF ogni volta per evitare accumulo di pagine
         self.pdf = FPDF()
         self.pdf.set_auto_page_break(auto=True, margin=15)
         if custom_exclusions:
@@ -142,7 +143,7 @@ class PDFConverter:
                 
                 is_excluded = self.file_manager.should_exclude(file_path, relative_path)
                 
-                if  not is_excluded:
+                if not is_excluded:
                     self._add_file_to_pdf(file_path, relative_path)
                     processed_files.append(str(relative_path))
                 else:
@@ -155,7 +156,7 @@ class PDFConverter:
                     progress_callback(processed_count, total_files)
         
         # Salva il PDF
-        self.pdf.output(final_output_pdf)
+        self.pdf.output(str(final_output_pdf))
         
         # Apri il PDF dopo la creazione se richiesto
         if open_after_creation:
@@ -225,16 +226,15 @@ class PDFConverter:
         
         self.pdf.ln(10)
     
-    
     def _add_file_to_pdf(self, file_path, relative_path):
         """Aggiunge un file al PDF"""
         try:
             # Leggi il contenuto del file
             content = self._read_file_content(file_path)
 
-            # Pulisci il testo
-            content = self._clean_text(content)
-            relative_path_str = self._clean_text(str(relative_path))
+            # Pulisci il testo PRIMA di qualsiasi operazione
+            content = self._clean_text_for_pdf(content)
+            relative_path_str = self._clean_text_for_pdf(str(relative_path))
 
             # Controlla se il contenuto è vuoto
             if not content.strip():
@@ -271,7 +271,7 @@ class PDFConverter:
             line_height = 4
             
             for i, line in enumerate(lines, 1):
-                clean_line = self._clean_text(line)
+                clean_line = self._clean_text_for_pdf(line)
                 
                 # Controlla se serve una nuova pagina
                 current_y = self.pdf.get_y()
@@ -341,11 +341,50 @@ class PDFConverter:
         # Se nessuna codifica funziona, restituisci messaggio di errore
         return f'Impossibile leggere il file {file_path} - formato binario o codifica sconosciuta'
     
-    def _clean_text(self, text):
-        """Pulisce il testo per la compatibilità PDF"""
+    def _encode_all_unicode_chars(self, text):
+        """Codifica TUTTI i caratteri Unicode in formato sicuro per PDF"""
+        if not text:
+            return text
+        
+        # Fase 1: Codifica tutte le emoji e caratteri speciali conosciuti
+        for char, replacement in EMOJI_MAPPING.items():
+            text = text.replace(char, replacement)
+        
+        # Fase 2: Per qualsiasi carattere Unicode rimanente, usa una codifica generica
+        safe_text = ""
+        for char in text:
+            if ord(char) < 128:
+                # Caratteri ASCII base - mantieni così
+                safe_text += char
+            else:
+                # Carattere Unicode - verifica se è già stato codificato
+                if char in EMOJI_MAPPING:
+                    # Se è nel mapping, usa la codifica già applicata
+                    safe_text += EMOJI_MAPPING[char]
+                else:
+                    # Codifica generica per caratteri Unicode non mappati
+                    safe_text += f'[U+{ord(char):04X}]'
+        
+        return safe_text
+    
+    def _clean_text_for_pdf(self, text):
+        """Pulisce il testo per la compatibilità PDF - VERSIONE ROBUSTA"""
+        if not text:
+            return text
+        
         try:
+            # PRIMA codifica tutti i caratteri Unicode
+            text = self._encode_all_unicode_chars(text)
+            
+            # POI verifica che il testo sia compatibile con latin-1
             text.encode('latin-1')
             return text
-        except UnicodeEncodeError:
-            cleaned_text = text.encode('latin-1', errors='replace').decode('latin-1')
-            return cleaned_text
+            
+        except UnicodeEncodeError as e:
+            print(f"Avviso: Caratteri non supportati dopo codifica: {e}")
+            # Fallback: sostituisci caratteri problematici
+            return text.encode('latin-1', errors='replace').decode('latin-1')
+        except Exception as e:
+            print(f"Errore imprevisto nella pulizia del testo: {e}")
+            # Fallback estremo: mantieni solo caratteri ASCII
+            return "".join(c if ord(c) < 128 else '?' for c in text)

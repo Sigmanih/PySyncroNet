@@ -9,6 +9,7 @@ import datetime
 from pathlib import Path
 import PyPDF2
 from core.file_manager import FileManager
+from core.emoji_mapping import REVERSE_EMOJI_MAPPING
 
 class ProjectRecreator:
     """Gestisce la ricostruzione di progetti da PDF con preservazione spazi"""
@@ -133,7 +134,7 @@ class ProjectRecreator:
                             current_content.append(line_match.group(2))
                             
                     elif raw_line.strip() and not any(re.match(pattern, raw_line.strip()) for pattern in end_of_file_patterns):
-                        #  Unisci SENZA SPAZI quando appropriato
+                        # Unisci SENZA SPAZI quando appropriato
                         
                         if current_content:
                             # Analizza il contesto per decidere come unire
@@ -204,10 +205,28 @@ class ProjectRecreator:
         # CASO DEFAULT: unisci CON SPAZIO
         return last_line.rstrip() + ' ' + continuation_stripped
 
+    def _decode_all_special_chars(self, text):
+        """Decodifica TUTTI i caratteri speciali dal formato leggibile"""
+        if not text:
+            return text
+        
+        # Fase 1: Decodifica le emoji e caratteri speciali conosciuti
+        for code, char in REVERSE_EMOJI_MAPPING.items():
+            text = text.replace(code, char)
+        
+        # Fase 2: Decodifica caratteri Unicode generici [U+XXXX]
+        unicode_pattern = r'\[U\+([0-9A-F]{4})\]'
+        matches = re.findall(unicode_pattern, text)
+        for hex_code in matches:
+            unicode_char = chr(int(hex_code, 16))
+            text = text.replace(f'[U+{hex_code}]', unicode_char)
+        
+        return text
+
     def clean_file_content(self, content, file_path):
         """
         Pulisce il contenuto preservando FEDELMENTE tutti gli spazi e l'indentazione originale.
-        Versione SEMPLIFICATA: rimuove solo caratteri di controllo
+        Versione MIGLIORATA: gestisce caratteri speciali, emoji e caratteri di controllo
         """
         if not content:
             return content
@@ -220,10 +239,13 @@ class ProjectRecreator:
         for i, line in enumerate(lines):
             cleaned_line = line
             
-            # Rimuovi SOLO i tag di troncamento espliciti
+            # FASE 1: Decodifica caratteri speciali e emoji
+            cleaned_line = self._decode_all_special_chars(cleaned_line)
+            
+            # FASE 2: Rimuovi SOLO i tag di troncamento espliciti
             cleaned_line = cleaned_line.replace('... [troncato]', '')
             
-            # Rimuovi caratteri di controllo ma PRESERVA ASSOLUTAMENTE TUTTI GLI SPAZI
+            # FASE 3: Rimuovi caratteri di controllo ma PRESERVA ASSOLUTAMENTE TUTTI GLI SPAZI
             cleaned_line = cleaned_line.replace('\r', '')
             cleaned_line = cleaned_line.replace('\x00', '')
             cleaned_line = cleaned_line.replace('\x0c', '')  # Form feed
@@ -278,7 +300,7 @@ class ProjectRecreator:
                 # Crea le directory necessarie
                 full_path.parent.mkdir(parents=True, exist_ok=True)
                 
-                # Pulisci il contenuto PRESERVANDO TUTTI GLI SPAZI
+                # Pulisci il contenuto PRESERVANDO TUTTI GLI SPAZI e DECODIFICANDO EMOJI
                 cleaned_content = self.clean_file_content(raw_content, file_path)
                 
                 # Scrivi il file con encoding UTF-8
@@ -387,6 +409,7 @@ TECNICA DI PRESERVAZIONE SPAZI:
 ✅ GESTIONE RIGHE LUNGHE: Le righe divise su più righe nel PDF vengono ricomposte
 ✅ FORMATTAZIONE INTATTA: La formattazione del codice rimane identica
 ✅ SUPPORTO UNIVERSALE: Funziona con tutti i linguaggi di programmazione
+✅ GESTIONE EMOJI: Le emoji vengono ricostruite correttamente
 
 ALGORITMO INTELLIGENTE:
 ----------------------
@@ -394,6 +417,7 @@ ALGORITMO INTELLIGENTE:
 • Riconoscimento contestuale operatori e parentesi
 • Preservazione struttura originale del codice
 • Gestione intelligente continuazioni
+• Decodifica automatica emoji e caratteri speciali
 
 """
 

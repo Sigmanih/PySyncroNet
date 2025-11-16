@@ -11,7 +11,7 @@ DEFAULT_EXCLUSIONS = {
         '__pypackages__', '.pytest_cache', '.mypy_cache', '.ruff_cache',
         '.coverage', 'htmlcov', '.tox', '.eggs', '*.egg-info',
         '.terraform', '.serverless', '.next', '.nuxt', '.output',
-        '.svelte-kit', '.astro', '.cache', '.parcel-cache', ".test"
+        '.svelte-kit', '.astro', '.cache', '.parcel-cache', "test"
     },
     'files': {
         #'config.py', 'settings.py', 
