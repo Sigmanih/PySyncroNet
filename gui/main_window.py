@@ -24,7 +24,7 @@ class MainWindow:
         self.root.title(f"{APP_CONFIG['name']} v{APP_CONFIG['version']}")
         self.root.geometry("1100x850")
         self.root.configure(bg='#1e1e1e')
-        self.root.minsize(1000, 700)
+        self.root.minsize(1000, 1000)
         
         # Prova a impostare l'icona
         try:

@@ -6,6 +6,9 @@
 
 Il formato PDF non solo garantisce sicurezza e compatibilità, ma offre anche un potente vantaggio: i PDF generati possono essere **utilizzati come input per modelli di Intelligenza Artificiale (IA)**, facilitando analisi semantiche, code review automatizzate e training di modelli NLP sul codice.
 
+<p align="center">
+  <img src="./saved/syncronet_logo.png" width="300">
+</p>
 ---
 
 ## Funzionalità Principali
@@ -91,11 +94,15 @@ Il cuore dell'applicazione, con interfaccia GUI multi-tab e funzionalità di ges
 2. Imposta (opzionalmente) le esclusioni
 3. Premi **“Crea PDF”** per generare la documentazione del progetto
 
+![Screenshot](./saved/Screenshot%202025-11-16%20025557.png)
+
 ### 🔄 Ricostruzione da PDF
 
 1. Seleziona un PDF generato in precedenza
 2. Scegli la cartella di output
 3. Premi **“Ricrea Progetto”** per ricostruire la struttura
+
+![Screenshot](./saved/Screenshot%202025-11-16%20025457.png)
 
 ---
 
@@ -133,30 +140,3 @@ Versione: **3.1 (AI-Enhanced Edition)**
 Data: Novembre 2025
 
 
-PySyncroNet/
-├── main.py                    # Punto di ingresso principale
-├── core/                      # Moduli core dell'applicazione
-│   ├── __init__.py
-│   ├── pdf_converter.py       # Conversione progetto -> PDF
-│   ├── project_recreator.py   # Ricostruzione progetto da PDF
-│   ├── file_manager.py        # Gestione file e esclusioni
-│   └── config.py             # Configurazioni e costanti
-├── gui/                       # Componenti dell'interfaccia grafica
-│   ├── __init__.py
-│   ├── main_window.py        # Finestra principale
-│   ├── tabs/                 # Schede dell'interfaccia
-│   │   ├── __init__.py
-│   │   ├── pdf_creator_tab.py
-│   │   ├── project_recreator_tab.py
-│   │   ├── exclusions_tab.py
-│   │   └── settings_tab.py
-│   ├── widgets.py            # Widget personalizzati
-│   └── styles.py             # Stili e temi
-├── utils/                     # Utility e helpers
-│   ├── __init__.py
-│   ├── logger.py             # Sistema di logging
-│   ├── progress.py           # Gestione progresso
-│   ├── validators.py         # Validatori input
-│   └── file_utils.py         # Utility per file system
-└── assets/                   # Risorse (icone, etc.)
-    └── __init__.py

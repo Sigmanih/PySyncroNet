@@ -1,3 +1,5 @@
+
+
 # PySyncroNet - Advanced PDF Project Manager
 
 ## Project Description
@@ -5,6 +7,9 @@
 **PySyncroNet** is an advanced software solution for **secure sharing and archiving of software projects**. Thanks to its innovative architecture, it can convert entire folders containing source code into a single **readable and portable PDF document**, which can later be **fully reconstructed** back into its original structure.
 
 The PDF format not only ensures security and compatibility but also provides a powerful advantage: generated PDFs can be **used as input for Artificial Intelligence (AI) models**, enabling semantic analysis, automated code reviews, and NLP model training on source code.
+<p align="center">
+  <img src="./saved/syncronet_logo.png" width="300">
+</p>
 
 ---
 
@@ -67,12 +72,12 @@ The core of the application, featuring a multi-tab GUI interface, project manage
    ```bash
     python -m venv venv
     .\venv\Scripts\activate
-   ```te
+   ```
 
 3. Install dependencies:
 
    ```bash
-   pip install fpdf PyPDF2
+   pip install -r requirements.txt
    ```
 
 4. Launch the application:
@@ -91,12 +96,15 @@ The core of the application, featuring a multi-tab GUI interface, project manage
 2. (Optionally) set exclusions
 3. Click **"Create PDF"** to generate the project documentation
 
+![Screenshot](./saved/Screenshot%202025-11-16%20025557.png)
+
 ### 🔄 Reconstruction from PDF
 
 1. Select a previously generated PDF
 2. Choose an output folder
 3. Click **"Rebuild Project"** to reconstruct the original structure
 
+![Screenshot](./saved/Screenshot%202025-11-16%20025457.png)
 ---
 
 ## AI Integration

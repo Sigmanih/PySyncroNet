@@ -233,7 +233,7 @@ class ProjectRecreatorTab:
         
         self.recreate_btn = tk.Button(
             right_button_frame,
-            text="🔄 RICREA PROGETTO",
+            text="🔄 RIGENERA",
             command=self._start_recreate_project,
             bg='#388a34',
             fg='#000000',
@@ -249,7 +249,7 @@ class ProjectRecreatorTab:
     def _browse_pdf(self):
         """Apri dialogo per selezione PDF"""
         # Usa la cartella Saved come directory iniziale
-        initial_dir = "Saved"
+        initial_dir = "saved"
         if not os.path.exists(initial_dir):
             os.makedirs(initial_dir)
         
