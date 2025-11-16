@@ -142,9 +142,7 @@ class PDFConverter:
                 
                 is_excluded = self.file_manager.should_exclude(file_path, relative_path)
                 
-                if include_excluded or not is_excluded:
-                    # Se include_excluded è True, aggiungi tutti i file
-                    # Se include_excluded è False, aggiungi solo i file non esclusi
+                if  not is_excluded:
                     self._add_file_to_pdf(file_path, relative_path)
                     processed_files.append(str(relative_path))
                 else:

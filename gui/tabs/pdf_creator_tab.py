@@ -108,7 +108,7 @@ class PDFCreatorTab:
         output_label.grid(row=0, column=0, sticky='w', pady=12, padx=12)
         
         # Entry per l'output
-        self.output_pdf = tk.StringVar(value="project_Snapshot.pdf")
+        self.output_pdf = tk.StringVar(value=".\saved\project_Snapshot.pdf")
         output_entry = tk.Entry(
             output_section,
             textvariable=self.output_pdf,
@@ -248,6 +248,7 @@ class PDFCreatorTab:
         path = filedialog.asksaveasfilename(
             title="💾 Salva PDF come",
             defaultextension=".pdf",
+            initialdir="saved",
             filetypes=[("PDF files", "*.pdf"), ("Tutti i file", "*.*")]
         )
         if path:
