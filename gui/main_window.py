@@ -47,9 +47,51 @@ class MainWindow:
         header_frame.pack(fill='x', padx=20, pady=15)
 
         # Carica e ridimensiona il logo
-        img = Image.open("./saved/syncronet_logo.png")
-        img = img.resize((96, 96), Image.LANCZOS)
-        self.logo_img = ImageTk.PhotoImage(img)
+        try:
+            import sys
+            import os
+            from pathlib import Path
+            
+            # Determina il percorso base
+            if getattr(sys, 'frozen', False):
+                # Se l'app è eseguita come eseguibile PyInstaller
+                base_path = Path(sys._MEIPASS)
+            else:
+                # Se eseguita come script Python
+                base_path = Path(__file__).parent.parent
+            
+            # Prova diversi percorsi per il logo
+            logo_paths = [
+                base_path / 'saved' / 'syncronet_logo.png',  # Percorso in eseguibile
+                Path('saved') / 'syncronet_logo.png',        # Percorso relativo
+                Path(__file__).parent.parent / 'saved' / 'syncronet_logo.png',  # Percorso assoluto
+            ]
+            
+            logo_loaded = False
+            for logo_path in logo_paths:
+                try:
+                    if logo_path.exists():
+                        img = Image.open(logo_path)
+                        img = img.resize((96, 96), Image.LANCZOS)
+                        self.logo_img = ImageTk.PhotoImage(img)
+                        logo_loaded = True
+                        print(f"✅ Logo caricato da: {logo_path}")
+                        break
+                except Exception as e:
+                    print(f"❌ Errore nel caricamento del logo da {logo_path}: {e}")
+                    continue
+            
+            if not logo_loaded:
+                # Crea un'immagine placeholder
+                print("⚠️  Logo non trovato, creo placeholder")
+                img = Image.new('RGB', (96, 96), color='#1e1e1e')
+                self.logo_img = ImageTk.PhotoImage(img)
+                
+        except Exception as e:
+            print(f"❌ Errore critico nel caricamento del logo: {e}")
+            # Fallback a placeholder
+            img = Image.new('RGB', (96, 96), color='#1e1e1e')
+            self.logo_img = ImageTk.PhotoImage(img)
         
         # Maschera circolare
         mask = Image.new("L", (96, 96), 0)

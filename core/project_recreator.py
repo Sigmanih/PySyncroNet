@@ -269,7 +269,7 @@ class ProjectRecreator:
         return path.suffix.lower()
 
     def recreate_project_structure(self, pdf_path, output_folder):
-        """Ricrea l'intera struttura del progetto dal PDF"""
+        """Ricrea l'intera struttura del progetto dal PDF in una cartella dedicata"""
         print(f"📖 Leggendo il PDF: {pdf_path}")
         pdf_text = self.extract_pdf_content(pdf_path)
         
@@ -287,7 +287,11 @@ class ProjectRecreator:
         
         print(f"📁 Trovati {len(files_data)} file nel PDF")
         
-        output_path = Path(output_folder)
+        # Estrai il nome del progetto dal PDF - MODIFICA: passa pdf_text
+        project_name = self._extract_project_name(files_data, pdf_path, pdf_text)
+        
+        # Crea il percorso di output completo con il nome esatto del progetto
+        output_path = Path(output_folder) / project_name
         output_path.mkdir(parents=True, exist_ok=True)
         
         files_created = 0
@@ -319,9 +323,10 @@ class ProjectRecreator:
                 print(error_msg)
         
         # Scrivi un report di ricostruzione
-        self.write_reconstruction_report(output_path, files_created, errors, files_data)
+        self.write_reconstruction_report(output_path, files_created, errors, files_data, project_name)
         
         print(f"\n🎉 RICOSTRUZIONE COMPLETATA!")
+        print(f"📁 Progetto: {project_name}")
         print(f"📊 File creati: {files_created}")
         print(f"❌ Errori: {len(errors)}")
         print(f"📂 Output: {output_path.absolute()}")
@@ -331,7 +336,50 @@ class ProjectRecreator:
             for error in errors:
                 print(f"  - {error}")
         
-        return True
+        return output_path
+
+    def _extract_project_name(self, files_data, pdf_path, pdf_text):
+        """Estrae il nome del progetto dal PDF"""
+        # Cerca il pattern "Progetto: NomeProgetto" nel testo del PDF
+        project_pattern = r'Progetto:\s*(.+)'
+        match = re.search(project_pattern, pdf_text)
+        
+        if match:
+            project_name = match.group(1).strip()
+            print(f"📋 Nome progetto estratto dal PDF: {project_name}")
+            return project_name
+        
+        # Fallback: prova a estrarre dalla struttura dei file
+        for file_path in files_data.keys():
+            # Se c'è un file nella root con estensione comune, usa la directory padre
+            path = Path(file_path)
+            if path.parent == Path('.') and path.suffix in ['.py', '.js', '.java', '.cpp', '.c', '.html']:
+                # Usa il nome del primo file significativo come base
+                project_name = path.stem
+                print(f"📋 Nome progetto estratto dai file: {project_name}")
+                return project_name
+        
+        # Fallback: estrai dal nome del PDF
+        pdf_name = Path(pdf_path).stem
+        if '_Snapshot' in pdf_name:
+            project_name = pdf_name.replace('_Snapshot', '')
+        elif '_snapshot' in pdf_name:
+            project_name = pdf_name.replace('_snapshot', '')
+        else:
+            # Rimuovi estensioni comuni e usa il resto
+            project_name = pdf_name.replace('.pdf', '').replace('.PDF', '')
+        
+        # Pulisci il nome per uso come cartella
+        project_name = re.sub(r'[<>:"/\\|?*]', '_', project_name)  # Rimuovi caratteri non validi
+        project_name = project_name.strip(' _')
+        
+        # Se il nome è vuoto, usa un default
+        if not project_name:
+            project_name = "Progetto_Ricostruito"
+        
+        print(f"📋 Nome progetto estratto dal nome PDF: {project_name}")
+        return project_name
+
 
     def _analyze_file_structure(self, file_path, content, files_created):
         """Analizza la struttura del file ricostruito"""
@@ -357,14 +405,16 @@ class ProjectRecreator:
             print(f"   📊 Statistiche: {line_count} linee, {max_indent} spazi max, {avg_indent} spazi medi")
             print(f"   📏 Lunghezza max riga: {max_line_length} caratteri")
 
-    def write_reconstruction_report(self, output_path, files_created, errors, files_data):
+    def write_reconstruction_report(self, output_path, files_created, errors, files_data, project_name):
         """Scrive un report dettagliato della ricostruzione"""
         report_content = f"""RICOSTRUZIONE PROGETTO DA PDF
 ===============================
 
+Nome progetto: {project_name}
 Data ricostruzione: {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 File creati con successo: {files_created}
 Errori riscontrati: {len(errors)}
+Cartella progetto: {output_path}
 
 DETTAGLIO FILE RICOSTRUITI:
 ---------------------------
